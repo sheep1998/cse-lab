@@ -39,7 +39,7 @@ lock_server_cache::acquire(lock_protocol::lockid_t lid, std::string id, int &)
     if (ls->wait_list == NULL){
       ls->wait_list = new list(id);
     } else {
-      ls->wait_list.insert(id); //add to wait list
+      ls->wait_list->insert(id); //add to wait list
     }
 
     ret = lock_protocol::RETRY;
@@ -130,9 +130,8 @@ lock_server_cache::stat(lock_protocol::lockid_t lid, int &r)
   return lock_protocol::OK;
 }
 
-//申请新的锁
 void 
-add_new_lock(lock_protocol::lockid_t lid, string id)
+lock_server_cache::add_new_lock(lock_protocol::lockid_t lid, std::string id)
 {
   lock_status_server* new_lock = new lock_status_server();
   new_lock->owner = id;
@@ -141,7 +140,7 @@ add_new_lock(lock_protocol::lockid_t lid, string id)
 
 //rpc call: retry and revoke
 rlock_protocol::status 
-rcall(string id, int protocol, lock_protocol::lockid_t lid)
+lock_server_cache::rcall(std::string id, int protocol, lock_protocol::lockid_t lid)
 {
   int r;
   lock_protocol::status ret = lock_protocol::OK;

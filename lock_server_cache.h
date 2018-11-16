@@ -23,12 +23,12 @@ class lock_server_cache {
   
   // ********** my design start here **********//
   struct list {
-    string value;
+    std::string value;
     list* next;
     list() {value = ""; next = NULL;}
-    list(string v) {value = v; next = NULL;}
+    list(std::string v) {value = v; next = NULL;}
 
-    void insert(string v){
+    void insert(std::string v){
         list* tail = new list();
         tail->value = v;
         list* cur = this;
@@ -36,25 +36,25 @@ class lock_server_cache {
           cur = cur->next;
         cur->next = tail;
     }
-  }
+  };
 
   struct lock_status_server { //paras of each lock
     bool granted; //locked
-    string owner; //client ip:port
-    std::list<string> wait_list;
+    std::string owner; //client ip:port
+    list* wait_list;
 
     lock_status_server() {
       granted = false;
       owner = "";
       wait_list = NULL;
     }
-  }
+  };
 
   std::map<lock_protocol::lockid_t, lock_status_server*> lock_map;  //lid-lock
   pthread_mutex_t map_mutex;
 
-  void add_new_lock(lock_protocol::lockid_t, string);
-  rlock_protocol::status rcall(string, int, lock_protocol::lockid_t);
+  void add_new_lock(lock_protocol::lockid_t, std::string);
+  rlock_protocol::status rcall(std::string, int, lock_protocol::lockid_t);
   
   // ********** my design finish here **********//
 

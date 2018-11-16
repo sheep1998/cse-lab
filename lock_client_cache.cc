@@ -8,7 +8,6 @@
 #include <stdio.h>
 #include "tprintf.h"
 #include <pthread.h>
-#include <map.h>
 
 /*
  * int acquire(lock_protocol::lockid_t, std::string id, int &);
@@ -36,10 +35,12 @@ class lock_release_user *_lu)
   rlsrpc->reg(rlock_protocol::retry, this, &lock_client_cache::retry_handler);
 }
 
+/*
 lock_client_cache::~lock_client_cache()
 {
   pthread_mutex_destroy(&cache_mutex);
 } 
+*/
 
 //cache acquire
 lock_protocol::status
@@ -185,7 +186,7 @@ int &)
   pthread_mutex_lock(&cache_mutex);
 
   //not find lock entry
-  if (lock_cache.find(lid) == lock_table.end()) {
+  if (lock_cache.find(lid) == lock_cache.end()) {
     tprintf("retry %llu: no entry!\n", lid);
   } 
   //retry
@@ -205,7 +206,7 @@ int &)
 
 //add new lock to map
 void 
-add_new_lock(lock_protocol::lockid_t lid)
+lock_client_cache::add_new_lock(lock_protocol::lockid_t lid)
 {
   lock_status_client* new_lock = new lock_status_client();
   lock_cache.insert(std::pair<lock_protocol::lockid_t, lock_status_client*>(lid, new_lock));
@@ -213,7 +214,7 @@ add_new_lock(lock_protocol::lockid_t lid)
 
 //set lock status
 void 
-set_lock_status(lock_status_client* ls, int status)
+lock_client_cache::set_lock_status(lock_status_client* ls, int status)
 {
   pthread_mutex_lock(&cache_mutex);
   ls->status = status;  
@@ -222,7 +223,7 @@ set_lock_status(lock_status_client* ls, int status)
 
 //compare lock status
 bool 
-is_lock_status(lock_status_client* ls, int status)
+lock_client_cache::is_lock_status(lock_status_client* ls, int status)
 {
   pthread_mutex_lock(&cache_mutex);
   bool ret = (ls->status == status);  
@@ -232,7 +233,7 @@ is_lock_status(lock_status_client* ls, int status)
 
 //actually acquire lock
 lock_protocol::status 
-acquire_actual(lock_protocol::lockid_t lid, lock_status_client* ls)
+lock_client_cache::acquire_actual(lock_protocol::lockid_t lid, lock_status_client* ls)
 {
   int r;
   lock_protocol::status ret = cl->call(lock_protocol::acquire, lid, id, r);
@@ -254,7 +255,7 @@ acquire_actual(lock_protocol::lockid_t lid, lock_status_client* ls)
 
 //actually release lock
 lock_protocol::status 
-release_actual(lock_protocol::lockid_t lid, lock_status_client* ls)
+lock_client_cache::release_actual(lock_protocol::lockid_t lid, lock_status_client* ls)
 {
   int r;
   lock_protocol::status ret = cl->call(lock_protocol::release, lid, id, r);

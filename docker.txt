@@ -1,3 +1,3 @@
-sudo docker run -it --privileged --cap-add=ALL -v /home/wxw/labs/lab-cse/lab:/home/stu/devlop ddnirvana/cselab_env:latest /bin/bash 
+sudo docker run -it --privileged --cap-add=ALL -v /home/wxw/labs/lab-cse/cse-lab:/home/stu/devlop ddnirvana/cselab_env:latest /bin/bash 
 
 cd /home/stu/devlop
