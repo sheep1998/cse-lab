@@ -45,7 +45,7 @@ class lock_client_cache : public lock_client {
     ~lock_status_client() {
       pthread_cond_destroy(&lock_status_cv);
     }
-  } 
+  }; 
 
   std::map<lock_protocol::lockid_t, lock_status_client*> lock_cache;
   pthread_mutex_t cache_mutex;
