@@ -177,8 +177,10 @@ main(int argc, char *argv[])
     //printf("simple lock client\n");
     //for (int i = 0; i < nt; i++) lc[i] = new lock_client(dst);
     printf("cache lock client\n");
-    for (int i = 0; i < nt; i++) 
+    for (int i = 0; i < nt; i++) {
+      printf("simple lock client\n");
       lc[i] = new lock_client_cache(dst);
+    }
 
 /*
     printf("simple lock client\n");

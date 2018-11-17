@@ -26,6 +26,7 @@ lock_server_cache::acquire(lock_protocol::lockid_t lid, std::string id, int &)
   lock_protocol::status ret = lock_protocol::OK;
 
   pthread_mutex_lock(&map_mutex);
+  bool toRPC = false;
 
   //not find lock entry
   if (lock_map.find(lid) == lock_map.end()) {
@@ -37,7 +38,8 @@ lock_server_cache::acquire(lock_protocol::lockid_t lid, std::string id, int &)
   //lock is occupied
   if (ls->granted) {
     if (ls->wait_list == NULL){
-      ls->wait_list = new list(id);
+      ls->wait_list = new list(id); //if no client wait, call revoke 
+      toRPC = true;
     } else {
       ls->wait_list->insert(id); //add to wait list
     }
@@ -45,8 +47,10 @@ lock_server_cache::acquire(lock_protocol::lockid_t lid, std::string id, int &)
     ret = lock_protocol::RETRY;
     pthread_mutex_unlock(&map_mutex);
 
-    while (rcall(ls->owner, rlock_protocol::revoke, lid) != rlock_protocol::OK){
-      tprintf("send revoke %llu to %s fail.\n", lid, ls->owner.c_str());
+    if (toRPC) {
+      while (rcall(ls->owner, rlock_protocol::revoke, lid) != rlock_protocol::OK){
+        tprintf("send revoke %llu to %s fail.\n", lid, ls->owner.c_str());
+      }
     }
   }
   //lock is free
@@ -84,7 +88,7 @@ lock_server_cache::release(lock_protocol::lockid_t lid, std::string id, int &r)
 
         //wake up the wait client
         if (ls->wait_list == NULL){
-          //code here
+          //cannot be here
         } else {
           ls->granted = true;
           ls->owner = ls->wait_list->value;
@@ -115,7 +119,7 @@ lock_server_cache::release(lock_protocol::lockid_t lid, std::string id, int &r)
         tprintf("send revoke %llu to %s fail.\n", lid, id.c_str());
       }
     } else {
-      //code here
+      //cannot be here
     }
   }
 

@@ -30,6 +30,9 @@ class lock_release_user *_lu)
   host << hname << ":" << rlock_port;
   id = host.str();
   last_port = rlock_port;
+
+  printf("lock client cache init\n");
+
   rpcs *rlsrpc = new rpcs(rlock_port);
   rlsrpc->reg(rlock_protocol::revoke, this, &lock_client_cache::revoke_handler);
   rlsrpc->reg(rlock_protocol::retry, this, &lock_client_cache::retry_handler);
@@ -154,7 +157,7 @@ lock_client_cache::revoke_handler(lock_protocol::lockid_t lid, int &)
 
   //status: NONE
   if (ls->status == NONE){
-
+    //do nothing
   }
   //status: FREE
   else if (ls->status == FREE){
@@ -195,7 +198,7 @@ int &)
     if (ls->status == ACQUIRING) {
       ls->status = LOCKED;
     } else {
-    
+      //do nothing 
     }
   }
   
@@ -239,7 +242,7 @@ lock_client_cache::acquire_actual(lock_protocol::lockid_t lid, lock_status_clien
   lock_protocol::status ret = cl->call(lock_protocol::acquire, lid, id, r);
   
   while (ret != lock_protocol::OK){
-    //if a retry call arrived
+    //if a retry call arrived, status is LOCKED	
     if (is_lock_status(ls, LOCKED)){
       break;
     }

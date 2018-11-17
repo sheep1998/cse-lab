@@ -5,6 +5,7 @@
 
 #include "lock_protocol.h"
 #include "lock_client.h"
+#include "lock_client_cache.h"
 
 //#include "yfs_protocol.h"
 #include "extent_client.h"
@@ -54,7 +55,7 @@ private:
   };
 
 public:
-  yfs_client();
+ // yfs_client();
   yfs_client(std::string, std::string);
 
   bool isfile(inum);
